@@ -1,12 +1,23 @@
 import { useEffect, useRef } from 'react';
 
+/**
+ * Finds the x and y position of a point at a given angle on a circle
+ * @param piece Fraction of the entire circle
+ * @returns The x and y position for a circle of radius 1
+ */
 function getPieceAngle(piece: number): [number, number] {
   return [Math.cos(piece * 2 * Math.PI), Math.sin(piece * 2 * Math.PI)];
 }
 
-export function getNussinovPlot(
+/**
+ * Draws a Nussinov plot on a canvas with base pairs
+ * @param canvas Canvas element on which to draw
+ * @param bases String of all the bases in order
+ * @param pairs An array of base pair index arrays
+ */
+export function drawNussinovPlot(
   canvas: HTMLCanvasElement,
-  pairsString: string,
+  bases: string,
   pairs: [number, number][],
 ) {
   const ctx = canvas.getContext('2d');
@@ -27,7 +38,7 @@ export function getNussinovPlot(
   ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
   ctx.stroke();
 
-  const pairsCount = pairsString.length;
+  const pairsCount = bases.length;
   const tickSize = 16;
 
   // Draw each tick and symbol
@@ -53,7 +64,7 @@ export function getNussinovPlot(
     const offsetX = 7;
     const offsetY = -7;
     ctx.fillText(
-      pairsString[i],
+      bases[i],
       circleX + angleX * textRadius - offsetX,
       circleY + angleY * textRadius - offsetY,
     );
@@ -92,7 +103,7 @@ const NussinovPlot = function NussinovPlot(): JSX.Element {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     if (canvas.current) {
-      getNussinovPlot(canvas.current, 'GATTATCAATTACA', [[0, 6], [1, 5], [2, 4], [7, 10], [8, 9]]);
+      drawNussinovPlot(canvas.current, 'GATTATCAATTACA', [[0, 6], [1, 5], [2, 4], [7, 10], [8, 9]]);
     }
   }, []);
 
