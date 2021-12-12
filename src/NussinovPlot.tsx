@@ -22,7 +22,7 @@ export function drawNussinovPlot(
 ) {
   const ctx = canvas.getContext('2d');
   if (ctx === null) {
-    throw new Error('Drawing context is null');
+    return;
   }
 
   const width = 500;
