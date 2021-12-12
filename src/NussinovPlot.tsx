@@ -28,9 +28,6 @@ export function getNussinovPlot(
   ctx.stroke();
 
   const pairsCount = pairsString.length;
-  if (pairs[0][0] === 1323) {
-    throw new Error('Remove me! TODO');
-  }
   const tickSize = 16;
 
   // Draw each tick and symbol
@@ -54,7 +51,7 @@ export function getNussinovPlot(
     // Draw label
     const textRadius = circleRadius + 20;
     const offsetX = 7;
-    const offsetY = -6;
+    const offsetY = -7;
     ctx.fillText(
       pairsString[i],
       circleX + angleX * textRadius - offsetX,
