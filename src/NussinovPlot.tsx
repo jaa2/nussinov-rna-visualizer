@@ -98,12 +98,17 @@ export function drawNussinovPlot(
     ctx.stroke();
   }
 }
+export interface INussinovPlotProps {
+  bases: string,
+  pairs: [number, number][]
+}
 
-const NussinovPlot = function NussinovPlot(): JSX.Element {
+const NussinovPlot = function NussinovPlot(props: INussinovPlotProps): JSX.Element {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const { bases, pairs } = props;
   useEffect(() => {
     if (canvas.current) {
-      drawNussinovPlot(canvas.current, 'GATTATCAATTACA', [[0, 6], [1, 5], [2, 4], [7, 10], [8, 9]]);
+      drawNussinovPlot(canvas.current, bases, pairs);
     }
   }, []);
 
