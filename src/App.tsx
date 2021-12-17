@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import NussinovPlot from './NussinovPlot';
+import 'bootswatch/dist/cerulean/bootstrap.css';
 
 const App = function App() {
   const [bases, setBases] = React.useState('');
@@ -23,10 +24,15 @@ const App = function App() {
   }
 
   return (
-    <div>
-      <h2>Nussinov</h2>
-      <p>Our app&apos;s content will go here.</p>
-      <input type="text" onChange={(e) => { updateBases(e.target.value); }} />
+    <div className="container-lg">
+      <h1 className="text-center">Nussinov RNA Secondary Structure Visualizer</h1>
+      <p className="text-center">by jaa2, Jpn3, and SethWyma</p>
+      <div className="mb-3">
+        <label htmlFor="basesEntry" className="form-label">
+          Bases of the RNA strand
+          <input className="form-control" id="basesEntry" type="text" placeholder="GAUAUCGC..." onChange={(e) => { updateBases(e.target.value); }} />
+        </label>
+      </div>
       <br />
       <NussinovPlot key={bases} bases={bases} pairs={pairs} />
     </div>
