@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import NussinovPlot from './NussinovPlot';
+import ForceGraph from './ForceGraph';
 import 'bootswatch/dist/cerulean/bootstrap.css';
 
 const App = function App() {
@@ -35,6 +36,7 @@ const App = function App() {
       </div>
       <br />
       <NussinovPlot key={bases} bases={bases} pairs={pairs} />
+      <ForceGraph key={bases} bases={bases} pairs={pairs} />
     </div>
   );
 };
