@@ -42,7 +42,7 @@ test('Sanitize on FASTA files', () => {
 
 test('BioCheck check for extraneous protein', () => {
   const element = bioCheck(sanitizeRNAString('cuuaa')[0]);
-  expect(element).toEqual(['The RNA sequence is not divisable by 3; therefore the string has an abiguous protein.']);
+  expect(element).toEqual(['The RNA sequence is not divisible by 3; the string has an ambiguous protein.']);
 });
 
 test('BioCheck check for improper end sequence', () => {
@@ -52,7 +52,7 @@ test('BioCheck check for improper end sequence', () => {
 
 test('BioCheck check for extraneous protein and improper end sequence', () => {
   const element = bioCheck(sanitizeRNAString('gcuccaa')[0]);
-  expect(element).toEqual(['The RNA sequence is not divisable by 3; therefore the string has an abiguous protein.', 'The RNA sequence does not contain a proper end sequence.']);
+  expect(element).toEqual(['The RNA sequence is not divisible by 3; the string has an ambiguous protein.', 'The RNA sequence does not contain a proper end sequence.']);
 });
 
 test('BioCheck passing sequence', () => {

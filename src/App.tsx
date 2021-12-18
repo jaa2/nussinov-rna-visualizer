@@ -1,15 +1,19 @@
 import React, { useEffect } from 'react';
 import NussinovPlot from './NussinovPlot';
 import 'bootswatch/dist/cerulean/bootstrap.css';
+import nussinov from './nussinov';
+import { bioCheck, sanitizeRNAString } from './cleanFastaFile';
 
 const App = function App() {
   const [bases, setBases] = React.useState('');
   const [pairs, setPairs] = React.useState<[number, number][]>([]);
+  const [warnings, setWarnings] = React.useState<Array<string>>([]);
 
   useEffect(() => {
     // Called on component load
-    setPairs([[0, 5], [1, 2], [3, 4], [6, 10], [8, 9]]);
-    setBases('GAUUACAGAUU');
+    const defaultBases = 'GAUUACAGAUU';
+    setPairs(nussinov(defaultBases));
+    setBases(defaultBases);
   }, []);
 
   /**
@@ -17,11 +21,22 @@ const App = function App() {
    * @param newBases List of bases, as a string
    */
   function updateBases(newBases: string) {
-    // TODO: Check if bases pass checks
-    // TODO: Set pairs based on Nussinov algorithm output
-    setPairs([[0, 5], [1, 2], [3, 4], [6, 10], [8, 9]]);
-    setBases(newBases);
+    const [filteredStr, rnaWarning] = sanitizeRNAString(newBases);
+    let rnaWarnings: Array<string> = [];
+    if (rnaWarning !== null) {
+      rnaWarnings.push(rnaWarning);
+    }
+    rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
+    setWarnings(rnaWarnings);
+    setPairs(nussinov(filteredStr));
+    setBases(filteredStr);
   }
+
+  const warningsElements: Array<JSX.Element> = warnings.map((warningStr) => (
+    <div className="alert alert-info">
+      {warningStr}
+    </div>
+  ));
 
   return (
     <div className="container-sm">
@@ -37,6 +52,8 @@ const App = function App() {
       </div>
       <br />
       <NussinovPlot key={bases} bases={bases} pairs={pairs} />
+      <br />
+      {warningsElements}
     </div>
   );
 };
