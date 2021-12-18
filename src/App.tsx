@@ -8,8 +8,8 @@ const App = function App() {
 
   useEffect(() => {
     // Called on component load
-    setPairs([[0, 6], [1, 5], [2, 4], [7, 10], [8, 9]]);
-    setBases('GATTATCAATTACA');
+    setPairs([[0, 5], [1, 2], [3, 4], [6, 10], [8, 9]]);
+    setBases('GAUUACAGAUU');
   }, []);
 
   /**
@@ -19,19 +19,21 @@ const App = function App() {
   function updateBases(newBases: string) {
     // TODO: Check if bases pass checks
     // TODO: Set pairs based on Nussinov algorithm output
-    setPairs([[0, 6], [1, 5], [2, 4], [7, 10], [8, 9]]);
+    setPairs([[0, 5], [1, 2], [3, 4], [6, 10], [8, 9]]);
     setBases(newBases);
   }
 
   return (
-    <div className="container-lg">
+    <div className="container-sm">
       <h1 className="text-center">Nussinov RNA Secondary Structure Visualizer</h1>
       <p className="text-center">by jaa2, Jpn3, and SethWyma</p>
       <div className="mb-3">
-        <label htmlFor="basesEntry" className="form-label">
-          Bases of the RNA strand
-          <input className="form-control" id="basesEntry" type="text" placeholder="GAUAUCGC..." onChange={(e) => { updateBases(e.target.value); }} />
+        <label htmlFor="bases-input">
+          <div className="form-label">
+            Bases of the RNA strand
+          </div>
         </label>
+        <input className="form-control" id="bases-input" type="text" placeholder="GAUUACAGAUU..." onChange={(e) => { updateBases(e.target.value); }} />
       </div>
       <br />
       <NussinovPlot key={bases} bases={bases} pairs={pairs} />
