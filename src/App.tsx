@@ -8,8 +8,8 @@ const App = function App() {
 
   useEffect(() => {
     // Called on component load
-    setPairs([[0, 6], [1, 5], [2, 4], [7, 10], [8, 9]]);
-    setBases('GATTATCAATTACA');
+    setPairs([[0, 5], [1, 2], [3, 4], [6, 10], [8, 9]]);
+    setBases('GAUUACAGAUU');
   }, []);
 
   /**
