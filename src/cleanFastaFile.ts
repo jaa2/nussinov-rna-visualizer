@@ -12,7 +12,7 @@ export function sanitizeRNAString(data: string): [string, string[]] {
   if (data[0] === '>') {
     const fasta: string[] = data.split('\n');
     fasta.splice(0, 1);
-    basePairsStr = fasta.toString();
+    basePairsStr = fasta.join();
   } else {
     basePairsStr = data;
   }
