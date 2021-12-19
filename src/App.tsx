@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import NussinovPlot from './NussinovPlot';
+import ForceGraph from './ForceGraph';
 import 'bootswatch/dist/cerulean/bootstrap.css';
 import nussinov, { dotParentheses } from './nussinov';
 import { bioCheck, sanitizeRNAString } from './cleanFastaFile';
@@ -11,15 +12,6 @@ const App = function App() {
   const [warnings, setWarnings] = React.useState<Array<string>>([]);
   const [isDNAtoRNA, setIsDNAtoRNA] = React.useState<boolean>(false);
   const [dotParenthesesOutput, setDotParenthesesOutput] = React.useState<string>('');
-
-  useEffect(() => {
-    // Called on component load
-    const defaultBases = 'GAUUACAGAUU';
-    const defaultMinHairpin = 2;
-    setPairs(nussinov(defaultBases));
-    setBases(defaultBases);
-    setMinHairpin(defaultMinHairpin);
-  }, []);
 
   /**
    * Sets the graph as a new set of bases
@@ -37,11 +29,18 @@ const App = function App() {
     setBases(filteredStr);
   }
 
+  useEffect(() => {
+    // Called on component load
+    const defaultBases = 'GAUUACAGAUAA';
+    const defaultMinHairpin = 2;
+    setMinHairpin(defaultMinHairpin);
+    updateBases(defaultBases);
+  }, []);
+
   function updateMinHairpin(newMinHairpin: number) {
     const clampedMinHairpin = Math.min(bases.length, Math.max(1, newMinHairpin));
     setMinHairpin(clampedMinHairpin);
-    setPairs(nussinov(bases, clampedMinHairpin));
-    setBases(bases);
+    updateBases(bases);
   }
 
   const warningsElements: Array<JSX.Element> = warnings.map((warningStr) => (
@@ -59,7 +58,7 @@ const App = function App() {
       <div className="row g-3">
         <div className="col-9">
           <label htmlFor="bases-input" className="form-label">Bases of the RNA strand</label>
-          <textarea className="form-control" id="bases-input" rows={1} placeholder="GAUUACAGAUU..." onChange={(e) => { updateBases(e.target.value); }} />
+          <textarea className="form-control" id="bases-input" rows={1} placeholder="GAUUACAGAUAA..." onChange={(e) => { updateBases(e.target.value); }} />
         </div>
         <div className="col-3">
           <label htmlFor="bases-input" className="form-label">Minimum hairpin length</label>
@@ -72,7 +71,8 @@ const App = function App() {
         Nussinov Plot
         {dnaToRnaSnippet}
       </h3>
-      <NussinovPlot key={bases + minHairpin} bases={bases} pairs={pairs} />
+      <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+      <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
       <br />
       <h3>Dot-Parentheses Format</h3>
       <div
