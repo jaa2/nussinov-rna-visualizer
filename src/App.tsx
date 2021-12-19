@@ -7,6 +7,7 @@ import { bioCheck, sanitizeRNAString } from './cleanFastaFile';
 const App = function App() {
   const [bases, setBases] = React.useState('');
   const [pairs, setPairs] = React.useState<[number, number][]>([]);
+  const [minHairpin, setMinHairpin] = React.useState<number>();
   const [warnings, setWarnings] = React.useState<Array<string>>([]);
   const [isDNAtoRNA, setIsDNAtoRNA] = React.useState<boolean>(false);
   const [dotParenthesesOutput, setDotParenthesesOutput] = React.useState<string>('');
@@ -14,8 +15,10 @@ const App = function App() {
   useEffect(() => {
     // Called on component load
     const defaultBases = 'GAUUACAGAUU';
+    const defaultMinHairpin = 2;
     setPairs(nussinov(defaultBases));
     setBases(defaultBases);
+    setMinHairpin(defaultMinHairpin);
   }, []);
 
   /**
@@ -28,10 +31,17 @@ const App = function App() {
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
     setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
-    const newPairs = nussinov(filteredStr);
+    const newPairs = nussinov(filteredStr, minHairpin);
     setPairs(newPairs);
     setDotParenthesesOutput(dotParentheses(filteredStr.length, newPairs));
     setBases(filteredStr);
+  }
+
+  function updateMinHairpin(newMinHairpin: number) {
+    const clampedMinHairpin = Math.min(bases.length, Math.max(1, newMinHairpin));
+    setMinHairpin(clampedMinHairpin);
+    setPairs(nussinov(bases, clampedMinHairpin));
+    setBases(bases);
   }
 
   const warningsElements: Array<JSX.Element> = warnings.map((warningStr) => (
@@ -46,20 +56,23 @@ const App = function App() {
     <div className="container-sm">
       <h1 className="text-center">Nussinov RNA Secondary Structure Visualizer</h1>
       <p className="text-center">by jaa2, Jpn3, and SethWyma</p>
-      <div className="mb-3">
-        <label htmlFor="bases-input">
-          <div className="form-label">
-            Bases of the RNA strand
-          </div>
-        </label>
-        <input className="form-control" id="bases-input" type="text" placeholder="GAUUACAGAUU..." onChange={(e) => { updateBases(e.target.value); }} />
+      <div className="row g-3">
+        <div className="col-9">
+          <label htmlFor="bases-input" className="form-label">Bases of the RNA strand</label>
+          <input className="form-control" id="bases-input" type="text" placeholder="GAUUACAGAUU..." onChange={(e) => { updateBases(e.target.value); }} />
+        </div>
+        <div className="col-3">
+          <label htmlFor="bases-input" className="form-label">Minimum hairpin length</label>
+          <input className="form-control" id="min-hairpin-input" type="number" value={minHairpin} onChange={(e) => { updateMinHairpin(+e.target.value); }} />
+        </div>
       </div>
+
       <br />
       <h3>
         Nussinov Plot
         {dnaToRnaSnippet}
       </h3>
-      <NussinovPlot key={bases} bases={bases} pairs={pairs} />
+      <NussinovPlot key={bases + minHairpin} bases={bases} pairs={pairs} />
       <br />
       <h3>Dot-Parentheses Format</h3>
       <div
