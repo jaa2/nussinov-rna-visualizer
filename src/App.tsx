@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import NussinovPlot from './NussinovPlot';
+import ForceGraph from './ForceGraph';
 import 'bootswatch/dist/cerulean/bootstrap.css';
 import nussinov, { dotParentheses } from './nussinov';
 import { bioCheck, sanitizeRNAString } from './cleanFastaFile';
@@ -70,7 +71,8 @@ const App = function App() {
         Nussinov Plot
         {dnaToRnaSnippet}
       </h3>
-      <NussinovPlot key={bases + minHairpin} bases={bases} pairs={pairs} />
+      <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+      <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
       <br />
       <h3>Dot-Parentheses Format</h3>
       <div
