@@ -2,6 +2,7 @@
   "name": "nussinov-rna-visualizer",
   "version": "0.1.0",
   "private": true,
+  "homepage": "nussinov-rna-visualizer/build/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^11.2.7",
