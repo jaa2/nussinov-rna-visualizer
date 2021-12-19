@@ -60,9 +60,9 @@ function drawForceGraph(
 
   forceLink.strength((link: any): number => {
     if (link.nussinovPair) {
-      return 0.8;
+      return 0.5;
     }
-    return 0.5;
+    return 0.8;
   });
 
   forceLink.distance((link: any): number => {
@@ -78,11 +78,27 @@ function drawForceGraph(
     .attr('viewBox', [-width / 2, -height / 2, width, height])
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
 
+  let tick = 0;
+
   const simulation = d3.forceSimulation(nodes)
     .force('link', forceLink)
     .force('charge', forceNode)
     .force('center', d3.forceCenter())
     .on('tick', () => {
+      /* eslint-disable no-param-reassign */
+      if (tick === 0) {
+        let theta = 0;
+        const tau = 2 * Math.PI;
+        const radius = nodes.length;
+        for (let i = 0; i < nodes.length; i += 1) {
+          nodes[i].x = radius * Math.cos(theta);
+          nodes[i].y = radius * Math.sin(theta);
+          theta += tau / nodes.length;
+        }
+      }
+
+      tick += 1;
+
       link // eslint-disable-line
         .attr('x1', (d: any) => d.source.x)
         .attr('y1', (d: any) => d.source.y)
