@@ -52,12 +52,12 @@ test('BioCheck check for extraneous protein', () => {
 
 test('BioCheck check for improper end sequence', () => {
   const element = bioCheck(sanitizeRNAString('cuccaa')[0]);
-  expect(element).toEqual(['The RNA sequence does not contain a proper end sequence.']);
+  expect(element).toEqual(["None of the end codons ('UAA,' 'UAG,' or 'UGA') were found at the end of the input."]);
 });
 
 test('BioCheck check for extraneous protein and improper end sequence', () => {
   const element = bioCheck(sanitizeRNAString('gcuccaa')[0]);
-  expect(element).toEqual(['The RNA sequence is not divisible by 3; the string has an ambiguous protein.', 'The RNA sequence does not contain a proper end sequence.']);
+  expect(element).toEqual(['The RNA sequence is not divisible by 3; the string has an ambiguous protein.', "None of the end codons ('UAA,' 'UAG,' or 'UGA') were found at the end of the input."]);
 });
 
 test('BioCheck passing sequence', () => {
