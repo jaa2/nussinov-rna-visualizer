@@ -70,8 +70,8 @@ const App = function App() {
         Nussinov Plot
         {dnaToRnaSnippet}
       </h3>
-      <NussinovPlot key={bases + minHairpin} bases={bases} pairs={pairs} />
-      <ForceGraph key={bases + minHairpin} bases={bases} pairs={pairs} />
+      <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+      <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
       <br />
       {warningsElements}
     </div>
