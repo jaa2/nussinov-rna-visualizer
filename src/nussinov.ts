@@ -26,7 +26,7 @@ function backtrack(bt: [Backtrace, number][][], pairs: [number, number][], i: nu
   }
 }
 
-export default function nussinov(rna: string, pairs: Set<string> = new Set(['AU', 'UA', 'GC', 'CG'])) {
+export default function nussinov(rna: string, minHairpinLength: number = 2, pairs: Set<string> = new Set(['AU', 'UA', 'GC', 'CG'])) {
   const n = rna.length;
   const dp: number[][] = Array.from({ length: n }, () => Array.from({ length: n }, () => 0));
   const bt: [Backtrace, number][][] = Array.from(
@@ -35,7 +35,7 @@ export default function nussinov(rna: string, pairs: Set<string> = new Set(['AU'
   );
 
   for (let j = 0; j < n; j += 1) {
-    for (let i = j - 1; i >= 0; i -= 1) {
+    for (let i = j - minHairpinLength; i >= 0; i -= 1) {
       let m = dp[i + 1][j - 1];
       let back: [Backtrace, number] = [Backtrace.Unmatched, 0];
       if (pairs.has(rna.charAt(i) + rna.charAt(j))) {
