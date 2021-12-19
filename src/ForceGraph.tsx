@@ -1,11 +1,26 @@
 import * as d3 from 'd3';
 import { useRef, useEffect } from 'react';
 
+interface Link {
+  readonly source: number;
+  readonly target: number;
+  readonly value: number;
+}
+
+interface Node {
+  readonly id: number;
+}
+
+export interface IForceGraphProps {
+  bases: string,
+  pairs: [number, number][]
+}
+
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
 // https://observablehq.com/@d3/force-directed-graph
 function drawForceGraph(
-  { nodes, links }: any,
+  { nodes, links, bases }: any,
   {
     width = 800,
     height = 600,
@@ -14,6 +29,7 @@ function drawForceGraph(
     linkOpacity = 0.6,
     nodeRadiusPixels = 5,
     nodeColor = '#999',
+    nodeFontSizeEm = '0.4em',
   }: any = { },
 ) {
   function intern(value: any) {
@@ -109,8 +125,12 @@ function drawForceGraph(
     .call(drag(simulation)); // eslint-disable-line
 
   const bpText = node.append('text')
-    .style('fill', 'orange') // fill the text with the colour black
-    .text('Hello World'); // define the text to display
+    .style('fill', 'white')
+    .style('font-size', nodeFontSizeEm)
+    .attr('text-anchor', 'middle')
+    .attr('dy', nodeFontSizeEm)
+    .attr('pointer-events', 'none')
+    .text((n: any): string => bases[n.id]);
 
   function drag(sim: any): any {
   /* eslint-disable no-param-reassign */
@@ -142,21 +162,6 @@ function drawForceGraph(
   return Object.assign(svg.node(), { });
 }
 
-interface Link {
-  readonly source: number;
-  readonly target: number;
-  readonly value: number;
-}
-
-interface Node {
-  readonly id: number;
-}
-
-export interface IForceGraphProps {
-  bases: string,
-  pairs: [number, number][]
-}
-
 const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
   const { bases, pairs } = props;
   const n = bases.length;
@@ -179,6 +184,7 @@ const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
   const forceGraph = {
     nodes,
     links,
+    bases,
   };
 
   const drawnGraph = drawForceGraph(forceGraph);
