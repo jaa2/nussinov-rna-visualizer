@@ -17,13 +17,17 @@ const App = function App() {
    * Sets the graph as a new set of bases
    * @param newBases List of bases, as a string
    */
-  function updateBases(newBases: string) {
+  function updateBases(newBases: string, newMinHairpin: undefined | number = undefined) {
+    let thisMinHairpin = minHairpin;
+    if (newMinHairpin !== undefined) {
+      thisMinHairpin = newMinHairpin;
+    }
     const [filteredStr, rnaSanitizeWarns] = sanitizeRNAString(newBases);
     let rnaWarnings: Array<string> = rnaSanitizeWarns;
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
     setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
-    const newPairs = nussinov(filteredStr, minHairpin);
+    const newPairs = nussinov(filteredStr, thisMinHairpin);
     setPairs(newPairs);
     setDotParenthesesOutput(dotParentheses(filteredStr.length, newPairs));
     setBases(filteredStr);
@@ -38,9 +42,9 @@ const App = function App() {
   }, []);
 
   function updateMinHairpin(newMinHairpin: number) {
-    const clampedMinHairpin = Math.min(bases.length, Math.max(1, newMinHairpin));
+    const clampedMinHairpin = Math.min(bases.length, Math.max(0, newMinHairpin));
     setMinHairpin(clampedMinHairpin);
-    updateBases(bases);
+    updateBases(bases, clampedMinHairpin);
   }
 
   const warningsElements: Array<JSX.Element> = warnings.map((warningStr) => (
@@ -62,7 +66,7 @@ const App = function App() {
         </div>
         <div className="col-3">
           <label htmlFor="bases-input" className="form-label">Minimum hairpin length</label>
-          <input className="form-control" id="min-hairpin-input" type="number" value={minHairpin} onChange={(e) => { updateMinHairpin(+e.target.value); }} />
+          <input className="form-control" id="min-hairpin-input" type="number" min="0" value={minHairpin} onChange={(e) => { updateMinHairpin(Number(e.target.value)); }} />
         </div>
       </div>
 
