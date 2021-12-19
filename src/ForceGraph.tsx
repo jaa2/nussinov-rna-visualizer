@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
-import { useEffect, useRef } from 'react';
-import { INussinovPlotProps } from './NussinovPlot';
+import { useRef, useEffect } from 'react';
 
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
@@ -147,7 +146,12 @@ interface Node {
   readonly id: number;
 }
 
-const ForceGraph = function ForceGraph(props: INussinovPlotProps): JSX.Element {
+export interface IForceGraphProps {
+  bases: string,
+  pairs: [number, number][]
+}
+
+const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
   const { bases, pairs } = props;
   const n = bases.length;
 
