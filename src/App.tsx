@@ -9,6 +9,7 @@ const App = function App() {
   const [pairs, setPairs] = React.useState<[number, number][]>([]);
   const [minHairpin, setMinHairpin] = React.useState<number>();
   const [warnings, setWarnings] = React.useState<Array<string>>([]);
+  const [isDNAtoRNA, setIsDNAtoRNA] = React.useState<boolean>(false);
 
   useEffect(() => {
     // Called on component load
@@ -24,13 +25,11 @@ const App = function App() {
    * @param newBases List of bases, as a string
    */
   function updateBases(newBases: string) {
-    const [filteredStr, rnaWarning] = sanitizeRNAString(newBases);
-    let rnaWarnings: Array<string> = [];
-    if (rnaWarning !== null) {
-      rnaWarnings.push(rnaWarning);
-    }
+    const [filteredStr, rnaSanitizeWarns] = sanitizeRNAString(newBases);
+    let rnaWarnings: Array<string> = rnaSanitizeWarns;
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
+    setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
     setPairs(nussinov(filteredStr, minHairpin));
     setBases(filteredStr);
   }
@@ -48,6 +47,8 @@ const App = function App() {
     </div>
   ));
 
+  const dnaToRnaSnippet: JSX.Element = isDNAtoRNA ? <span className="h5 badge bg-primary" style={{ transform: 'scale(0.7)' }}>DNA&#10142;RNA</span> : <span />;
+
   return (
     <div className="container-sm">
       <h1 className="text-center">Nussinov RNA Secondary Structure Visualizer</h1>
@@ -64,6 +65,10 @@ const App = function App() {
       </div>
 
       <br />
+      <h3>
+        Nussinov Plot
+        {dnaToRnaSnippet}
+      </h3>
       <NussinovPlot key={bases + minHairpin} bases={bases} pairs={pairs} />
       <br />
       {warningsElements}

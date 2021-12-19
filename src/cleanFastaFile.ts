@@ -1,26 +1,35 @@
+// Message if both DNA and RNA bases are included
+export const mixedInputMessage: string = 'Both DNA bases (T) and RNA bases (U) found in input. Mixed input not expected.';
+
 /**
  * Sanitizes an string of RNA bases and converts DNA to RNA.
  * @param data An RNA string, a DNA string, or a FASTA file type string
- * @returns an array containing the cleaned RNA string and an optional message
+ * @returns an array containing the cleaned RNA string and all warning messages
  */
-export function sanitizeRNAString(data: string): [string, string | null] {
+export function sanitizeRNAString(data: string): [string, string[]] {
   const dataArr: string[] = data.split(' ');
-  let data2:string = dataArr[dataArr.length - 1];
-  data2 = data2.toUpperCase();
+  let basePairsStr:string = dataArr[dataArr.length - 1];
+  basePairsStr = basePairsStr.toUpperCase();
+
+  const messages: string[] = [];
+
+  // Check if DNA and RNA are both (possibly) present
+  if (basePairsStr.includes('T') && basePairsStr.includes('U')) {
+    messages.push(mixedInputMessage);
+  }
 
   // Converts DNA to RNA
-  data2 = data2.replace(/T/g, 'U');
+  basePairsStr = basePairsStr.replace(/T/g, 'U');
+  const rnaStr = basePairsStr.replaceAll(/[^GACU]/g, '');
 
-  const rnaStr = data2.replaceAll(/[^GACU]/g, '');
-
-  if (rnaStr.length !== data2.length) {
+  if (rnaStr.length !== basePairsStr.length) {
     // We are ignoring some characters
-    const message = `Characters ignored: ${data2.replaceAll(/[GACU]/g, '')}`;
-    return [rnaStr, message];
+    const message = `Characters ignored: ${basePairsStr.replaceAll(/[GACU]/g, '')}`;
+    messages.push(message);
   }
 
   // No characters are ignored
-  return [rnaStr, null];
+  return [rnaStr, messages];
 }
 
 /**

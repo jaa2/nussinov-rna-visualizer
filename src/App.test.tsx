@@ -1,43 +1,47 @@
-import { bioCheck, sanitizeRNAString } from './cleanFastaFile';
+import { bioCheck, mixedInputMessage, sanitizeRNAString } from './cleanFastaFile';
 
 test('Sanitize empty string', () => {
   const element = sanitizeRNAString('');
-  expect(element).toEqual(['', null]);
+  expect(element).toEqual(['', []]);
 });
 
 test('Sanitize to upper RNA string', () => {
   const element = sanitizeRNAString('gacucc');
-  expect(element).toEqual(['GACUCC', null]);
+  expect(element).toEqual(['GACUCC', []]);
 });
 
 test('Sanitize to upper DNA string', () => {
   const element = sanitizeRNAString('gactcc');
-  expect(element).toEqual(['GACUCC', null]);
+  expect(element).toEqual(['GACUCC', []]);
 });
 
 test('Sanitize catching a number', () => {
   const element = sanitizeRNAString('gac1cc');
-  expect(element).toEqual(['GACCC', 'Characters ignored: 1']);
+  expect(element).toEqual(['GACCC', ['Characters ignored: 1']]);
 });
 
 test('Sanitize catching a non base pair alpha character', () => {
   const element = sanitizeRNAString('gabcc');
-  expect(element).toEqual(['GACC', 'Characters ignored: B']);
+  expect(element).toEqual(['GACC', ['Characters ignored: B']]);
 });
 
 test('Sanitize catching a non base pair character', () => {
   const element = sanitizeRNAString('gac!cc');
-  expect(element).toEqual(['GACCC', 'Characters ignored: !']);
+  expect(element).toEqual(['GACCC', ['Characters ignored: !']]);
 });
 
 test('Sanitize catching many errors', () => {
   const element = sanitizeRNAString('gbac!cc1');
-  expect(element).toEqual(['GACCC', 'Characters ignored: B!1']);
+  expect(element).toEqual(['GACCC', ['Characters ignored: B!1']]);
 });
 
 test('Sanitize on FASTA files', () => {
   const element = sanitizeRNAString('>NC_000007.14:22725889-22732002 IL6 [organism=Homo sapiens] [GeneID=3569] [chromosome=7] ACACCATGTTTGGTAAATAAGTGTTTTGGTTGA');
-  expect(element).toEqual(['ACACCAUGUUUGGUAAAUAAGUGUUUUGGUUGA', null]);
+  expect(element).toEqual(['ACACCAUGUUUGGUAAAUAAGUGUUUUGGUUGA', []]);
+});
+
+test('Mixed DNA/RNA bases input', () => {
+  expect(sanitizeRNAString('TUA')).toEqual(['UUA', [mixedInputMessage]]);
 });
 
 test('BioCheck check for extraneous protein', () => {
