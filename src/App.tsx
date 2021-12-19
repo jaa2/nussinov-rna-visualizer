@@ -8,6 +8,7 @@ const App = function App() {
   const [bases, setBases] = React.useState('');
   const [pairs, setPairs] = React.useState<[number, number][]>([]);
   const [warnings, setWarnings] = React.useState<Array<string>>([]);
+  const [isDNAtoRNA, setIsDNAtoRNA] = React.useState<boolean>(false);
 
   useEffect(() => {
     // Called on component load
@@ -25,6 +26,7 @@ const App = function App() {
     let rnaWarnings: Array<string> = rnaSanitizeWarns;
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
+    setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
     setPairs(nussinov(filteredStr));
     setBases(filteredStr);
   }
@@ -34,6 +36,8 @@ const App = function App() {
       {warningStr}
     </div>
   ));
+
+  const dnaToRnaSnippet: JSX.Element = isDNAtoRNA ? <span className="h5 badge bg-primary" style={{ transform: 'scale(0.7)' }}>DNA&#10142;RNA</span> : <span />;
 
   return (
     <div className="container-sm">
@@ -48,6 +52,10 @@ const App = function App() {
         <input className="form-control" id="bases-input" type="text" placeholder="GAUUACAGAUU..." onChange={(e) => { updateBases(e.target.value); }} />
       </div>
       <br />
+      <h3>
+        Nussinov Plot
+        {dnaToRnaSnippet}
+      </h3>
       <NussinovPlot key={bases} bases={bases} pairs={pairs} />
       <br />
       {warningsElements}
