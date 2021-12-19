@@ -68,6 +68,10 @@ function drawForceGraph(
         .attr('cx', (d: any) => d.x)
         .attr('cy', (d: any) => d.y);
 
+      circles // eslint-disable-line
+        .attr('cx', (d: any) => d.x)
+        .attr('cy', (d: any) => d.y);
+
       bpText // eslint-disable-line
         .attr('x', (d: any) => d.x)
         .attr('y', (d: any) => d.y);
@@ -94,15 +98,17 @@ function drawForceGraph(
     .data(links)
     .join('line');
 
-  const node = svg.append('g')
+  const node = svg.selectAll('circle')
     .attr('stroke', nodeColor)
-    .selectAll('circle')
     .data(nodes)
-    .join('circle')
+    .enter()
+    .append('g');
+
+  const circles = node.append('circle')
     .attr('r', nodeRadiusPixels)
     .call(drag(simulation)); // eslint-disable-line
 
-  const bpText = node.append('title')
+  const bpText = node.append('text')
     .style('fill', 'orange') // fill the text with the colour black
     .text('Hello World'); // define the text to display
 
