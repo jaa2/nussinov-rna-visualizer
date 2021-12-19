@@ -5,6 +5,8 @@ interface Link {
   readonly source: number;
   readonly target: number;
   readonly value: number;
+  readonly nussinovPair: boolean;
+  readonly inBulge: boolean;
 }
 
 interface Node {
@@ -16,6 +18,8 @@ export interface IForceGraphProps {
   pairs: [number, number][]
 }
 
+const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
+
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
 // https://observablehq.com/@d3/force-directed-graph
@@ -24,9 +28,10 @@ function drawForceGraph(
   {
     width = 800,
     height = 600,
-    windowBuffer = 30,
-    linkColor = '#999',
-    linkOpacity = 0.6,
+    windowBuffer = 10,
+    windowBounds = 800,
+    linkColor = '#555',
+    linkOpacity = 0.7,
     nodeRadiusPixels = 5,
     nodeColor = '#999',
     nodeFontSizeEm = '0.4em',
@@ -41,26 +46,30 @@ function drawForceGraph(
   const LT = d3.map(links, ({ target }: any) => target).map(intern);
 
   nodes = d3.map(nodes, (_, i) => ({ id: N[i] })); // eslint-disable-line
-  links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] })); // eslint-disable-line
+  links = d3.map(links, (_, i) => ({ // eslint-disable-line
+    source: LS[i],
+    target: LT[i],
+    nussinovPair: links[i].nussinovPair,
+    inBulge: links[i].inBulge,
+  }));
 
-  // Construct the forces.
   const forceNode = d3.forceManyBody();
   const forceLink = d3.forceLink(links).id(({ index: i }: any) => N[i]);
 
   forceNode.strength(-5);
 
   forceLink.strength((link: any): number => {
-    if (link.target.index - link.source.index === 1) {
-      return 0.5;
+    if (link.nussinovPair) {
+      return 0.8;
     }
-    return 0.8;
+    return 0.5;
   });
 
   forceLink.distance((link: any): number => {
-    if (link.target.index - link.source.index === 1) {
-      return 8;
+    if (link.nussinovPair) {
+      return 25;
     }
-    return 30;
+    return link.inBulge ? 15 : 8;
   });
 
   const svg = d3.create('svg')
@@ -95,15 +104,20 @@ function drawForceGraph(
       if (nodes.length > 0) {
         let window = [nodes[0].x, nodes[0].y, nodes[0].x, nodes[0].y];
         for (let i = 1; i < nodes.length; i += 1) {
-          window = [Math.min(window[0], nodes[i].x), Math.min(window[1], nodes[i].y),
-            Math.max(window[2], nodes[i].x), Math.max(window[3], nodes[i].y)];
+          window = [
+            Math.min(nodes[i].x, window[0]),
+            Math.min(nodes[i].y, window[1]),
+            Math.max(nodes[i].x, window[2]),
+            Math.max(nodes[i].y, window[3])];
         }
 
         svg
-          .attr('viewBox', [window[0] - windowBuffer,
-            window[1] - windowBuffer,
-            window[2] - window[0] + 2 * windowBuffer,
-            window[3] - window[1] + 2 * windowBuffer]);
+          .attr('viewBox', [
+            clamp(window[0] - windowBuffer, -windowBounds, windowBounds),
+            clamp(window[1] - windowBuffer, -windowBounds, windowBounds),
+            clamp(window[2] - window[0] + 2 * windowBuffer, -windowBounds, windowBounds),
+            clamp(window[3] - window[1] + 2 * windowBuffer, -windowBounds, windowBounds),
+          ]);
       }
     });
 
@@ -112,7 +126,8 @@ function drawForceGraph(
     .attr('stroke-opacity', linkOpacity)
     .selectAll('line')
     .data(links)
-    .join('line');
+    .join('line')
+    .attr('stroke-dasharray', (l: any): string => (l.nussinovPair ? '1' : ''));
 
   const node = svg.selectAll('circle')
     .attr('stroke', nodeColor)
@@ -157,8 +172,6 @@ function drawForceGraph(
       .on('end', dragended);
   }
 
-  // link.attr('stroke-width', linkStrokeWidth);
-
   return Object.assign(svg.node(), { });
 }
 
@@ -168,17 +181,35 @@ const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
 
   const nodes: Node[] = [];
   const links: Link[] = [];
+  const pairedNodes: Set<number> = new Set<number>();
   let i = 0;
-  for (; i < n; i += 1) {
-    if (i < n - 1) links.push({ source: i, target: i + 1, value: 1 });
-    nodes.push({ id: i });
-  }
 
-  for (i = 0; i < pairs.length; i += 1) {
-    const l: Link = { source: +pairs[i][0], target: +pairs[i][1], value: 1 };
+  for (; i < pairs.length; i += 1) {
+    const l: Link = {
+      source: +pairs[i][0],
+      target: +pairs[i][1],
+      value: 1,
+      nussinovPair: true,
+      inBulge: false,
+    };
     if (l.source < n && l.target < n) {
       links.push(l);
     }
+    pairedNodes.add(l.source);
+    pairedNodes.add(l.target);
+  }
+
+  for (i = 0; i < n; i += 1) {
+    if (i < n - 1) {
+      links.push({
+        source: i,
+        target: i + 1,
+        value: 1,
+        nussinovPair: false,
+        inBulge: !pairedNodes.has(i) || !pairedNodes.has(i + 1),
+      });
+    }
+    nodes.push({ id: i });
   }
 
   const forceGraph = {
