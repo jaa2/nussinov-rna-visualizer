@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import NussinovPlot from './NussinovPlot';
 import 'bootswatch/dist/cerulean/bootstrap.css';
-import nussinov from './nussinov';
+import nussinov, { dotParentheses } from './nussinov';
 import { bioCheck, sanitizeRNAString } from './cleanFastaFile';
 
 const App = function App() {
@@ -10,6 +10,7 @@ const App = function App() {
   const [minHairpin, setMinHairpin] = React.useState<number>();
   const [warnings, setWarnings] = React.useState<Array<string>>([]);
   const [isDNAtoRNA, setIsDNAtoRNA] = React.useState<boolean>(false);
+  const [dotParenthesesOutput, setDotParenthesesOutput] = React.useState<string>('');
 
   useEffect(() => {
     // Called on component load
@@ -30,7 +31,9 @@ const App = function App() {
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
     setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
-    setPairs(nussinov(filteredStr, minHairpin));
+    const newPairs = nussinov(filteredStr, minHairpin);
+    setPairs(newPairs);
+    setDotParenthesesOutput(dotParentheses(filteredStr.length, newPairs));
     setBases(filteredStr);
   }
 
@@ -70,6 +73,16 @@ const App = function App() {
         {dnaToRnaSnippet}
       </h3>
       <NussinovPlot key={bases + minHairpin} bases={bases} pairs={pairs} />
+      <br />
+      <h3>Dot-Parentheses Format</h3>
+      <div
+        className="px-2"
+        style={{
+          backgroundColor: '#868e96', color: '#dee2e6', fontFamily: 'monospace', borderRadius: '10px', overflowWrap: 'anywhere',
+        }}
+      >
+        {dotParenthesesOutput}
+      </div>
       <br />
       {warningsElements}
     </div>

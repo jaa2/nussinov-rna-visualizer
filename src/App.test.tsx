@@ -1,4 +1,5 @@
 import { bioCheck, mixedInputMessage, sanitizeRNAString } from './cleanFastaFile';
+import { dotParentheses } from './nussinov';
 
 test('Sanitize empty string', () => {
   const element = sanitizeRNAString('');
@@ -62,4 +63,12 @@ test('BioCheck check for extraneous protein and improper end sequence', () => {
 test('BioCheck passing sequence', () => {
   const element = bioCheck(sanitizeRNAString('gcutaa')[0]);
   expect(element).toEqual([]);
+});
+
+test('Dot parentheses format', () => {
+  expect(dotParentheses(5, [[0, 1]])).toEqual('()...');
+  expect(dotParentheses(2, [[0, 1]])).toEqual('()');
+  expect(dotParentheses(5, [[0, 4]])).toEqual('(...)');
+  expect(dotParentheses(6, [])).toEqual('......');
+  expect(dotParentheses(6, [[0, 2], [3, 4]])).toEqual('(.)().');
 });

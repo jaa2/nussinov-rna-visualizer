@@ -67,3 +67,18 @@ export default function nussinov(rna: string, minHairpinLength: number = 2, pair
   backtrack(bt, indexPairs, 0, n - 1);
   return indexPairs;
 }
+
+/**
+ * Returns the dot-parentheses format of base pairings
+ * @param numBases the total number of bases
+ * @param pairs an array of base pairs by index
+ * @returns the dot-parentheses representation of the base pairings
+ */
+export function dotParentheses(numBases: number, pairs: [number, number][]): string {
+  const resultArr = Array(numBases).fill('.');
+  for (let i = 0; i < pairs.length; i += 1) {
+    resultArr[pairs[i][0]] = '(';
+    resultArr[pairs[i][1]] = ')';
+  }
+  return resultArr.join('');
+}
