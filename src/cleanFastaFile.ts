@@ -7,8 +7,16 @@ export const mixedInputMessage: string = 'Both DNA bases (T) and RNA bases (U) f
  * @returns an array containing the cleaned RNA string and all warning messages
  */
 export function sanitizeRNAString(data: string): [string, string[]] {
-  const dataArr: string[] = data.split(' ');
-  let basePairsStr:string = dataArr[dataArr.length - 1];
+  // identify and clean fasta file
+  let basePairsStr:string = '';
+  if (data[0] === '>') {
+    const fasta: string[] = data.split('\n');
+    fasta.splice(0, 1);
+    basePairsStr = fasta.toString();
+  } else {
+    basePairsStr = data;
+  }
+
   basePairsStr = basePairsStr.toUpperCase();
 
   const messages: string[] = [];
