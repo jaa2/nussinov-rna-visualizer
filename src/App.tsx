@@ -21,11 +21,8 @@ const App = function App() {
    * @param newBases List of bases, as a string
    */
   function updateBases(newBases: string) {
-    const [filteredStr, rnaWarning] = sanitizeRNAString(newBases);
-    let rnaWarnings: Array<string> = [];
-    if (rnaWarning !== null) {
-      rnaWarnings.push(rnaWarning);
-    }
+    const [filteredStr, rnaSanitizeWarns] = sanitizeRNAString(newBases);
+    let rnaWarnings: Array<string> = rnaSanitizeWarns;
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
     setPairs(nussinov(filteredStr));
