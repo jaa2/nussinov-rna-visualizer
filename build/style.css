@@ -1,0 +1,11 @@
+@media (max-width: 768px) {
+    .graphs-box {
+        justify-content: space-between;
+    }
+}
+
+@media (min-width: 768px) {
+    .graphs-box {
+        justify-content: space-evenly;
+    }
+}
