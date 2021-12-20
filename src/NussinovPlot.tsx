@@ -1,12 +1,26 @@
 import { useEffect, useRef } from 'react';
 
 /**
+ * Finds the angle offset of a set of points arranged in a circle, starting at the top
+ * @param numBases number of points in the circle
+ * @returns the angle of the first point in the circle
+ */
+export function getOffsetAngle(numBases: number) {
+  let arcOffset = (2 * Math.PI * 270) / 360;
+  if (numBases > 1) {
+    arcOffset += (2 * Math.PI) / numBases / 2;
+  }
+  return arcOffset % (2 * Math.PI);
+}
+
+/**
  * Finds the x and y position of a point at a given angle on a circle
  * @param piece Fraction of the entire circle
+ * @param arcOffset Offset angle
  * @returns The x and y position for a circle of radius 1
  */
-function getPieceAngle(piece: number): [number, number] {
-  return [Math.cos(piece * 2 * Math.PI), Math.sin(piece * 2 * Math.PI)];
+function getPieceAngle(piece: number, arcOffset: number): [number, number] {
+  return [Math.cos(arcOffset + piece * 2 * Math.PI), Math.sin(arcOffset + piece * 2 * Math.PI)];
 }
 
 /**
@@ -33,10 +47,40 @@ export function drawNussinovPlot(
   const circleY = height / 2;
 
   // Draw circle
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
-  ctx.stroke();
+  const lineWidthThin = 0.3;
+  const lineWidthThick = 2;
+  const arcOffset = getOffsetAngle(bases.length);
+
+  if (bases.length < 2) {
+    // Draw complete circle
+    ctx.lineWidth = lineWidthThick;
+    ctx.beginPath();
+    ctx.arc(circleX, circleY, circleRadius, arcOffset + 0, arcOffset + 2 * Math.PI);
+    ctx.stroke();
+  } else {
+    // Draw small arc
+    ctx.lineWidth = lineWidthThin;
+    ctx.beginPath();
+    ctx.arc(
+      circleX,
+      circleY,
+      circleRadius,
+      arcOffset + (2 * Math.PI * (bases.length - 1)) / bases.length,
+      arcOffset + 2 * Math.PI,
+    );
+    ctx.stroke();
+    // Draw large arc
+    ctx.lineWidth = lineWidthThick;
+    ctx.beginPath();
+    ctx.arc(
+      circleX,
+      circleY,
+      circleRadius,
+      arcOffset + 0,
+      arcOffset + (2 * Math.PI * (bases.length - 1)) / bases.length,
+    );
+    ctx.stroke();
+  }
 
   const pairsCount = bases.length;
   const tickSize = 16;
@@ -45,7 +89,7 @@ export function drawNussinovPlot(
   ctx.font = '20px Arial';
   for (let i = 0; i < pairsCount; i += 1) {
     const piece = i / pairsCount;
-    const [angleX, angleY] = getPieceAngle(piece);
+    const [angleX, angleY] = getPieceAngle(piece, arcOffset);
 
     // Draw tick
     ctx.beginPath();
@@ -82,8 +126,8 @@ export function drawNussinovPlot(
   for (let i = 0; i < pairs.length; i += 1) {
     const piece1 = pairs[i][0] / pairsCount;
     const piece2 = pairs[i][1] / pairsCount;
-    const [angleX1, angleY1] = getPieceAngle(piece1);
-    const [angleX2, angleY2] = getPieceAngle(piece2);
+    const [angleX1, angleY1] = getPieceAngle(piece1, arcOffset);
+    const [angleX2, angleY2] = getPieceAngle(piece2, arcOffset);
 
     // Draw chord line
     ctx.beginPath();
