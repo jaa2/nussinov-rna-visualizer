@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { useRef, useEffect } from 'react';
+import { getOffsetAngle } from './NussinovPlot';
 
 interface Link {
   readonly source: number;
@@ -102,7 +103,7 @@ function drawForceGraph(
     .on('tick', () => {
       /* eslint-disable no-param-reassign */
       if (firstTick) {
-        let theta = 0;
+        let theta = getOffsetAngle(nodes.length);
         const tau = 2 * Math.PI;
         const radius = nodes.length;
         for (let i = 0; i < nodes.length; i += 1) {
