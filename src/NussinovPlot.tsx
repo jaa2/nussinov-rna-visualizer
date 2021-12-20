@@ -19,13 +19,13 @@ export function drawNussinovPlot(
   canvas: HTMLCanvasElement,
   bases: string,
   pairs: [number, number][],
+  width: number,
 ) {
   const ctx = canvas.getContext('2d');
   if (ctx === null) {
     return;
   }
 
-  const width = 500;
   const height = width;
 
   const circleRadius = Math.floor(width / 2.4);
@@ -108,12 +108,12 @@ const NussinovPlot = function NussinovPlot(props: INussinovPlotProps): JSX.Eleme
   const { bases, pairs } = props;
   useEffect(() => {
     if (canvas.current) {
-      drawNussinovPlot(canvas.current, bases, pairs);
+      drawNussinovPlot(canvas.current, bases, pairs, canvas.current.width);
     }
   }, []);
 
   return (
-    <canvas width="500" height="500" ref={canvas} />
+    <canvas width="550" height="550" ref={canvas} />
   );
 };
 
