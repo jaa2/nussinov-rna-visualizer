@@ -81,7 +81,7 @@ const App = function App() {
       </div>
 
       <br />
-      <div className="d-flex flex-row flex-wrap justify-content-between mb-4">
+      <div className="d-flex flex-row flex-wrap justify-content-evenly mb-4">
         <div>
           <h3 className="text-center">
             Nussinov Plot
