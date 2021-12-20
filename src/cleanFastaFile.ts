@@ -62,7 +62,7 @@ export function bioCheck(data: string): string[] {
       (data[data.length - 1]).toString(),
     );
     if (!(end === 'UAA' || end === 'UAG' || end === 'UGA')) {
-      messages.push('The RNA sequence does not contain a proper end sequence.');
+      messages.push("None of the end codons ('UAA,' 'UAG,' or 'UGA') were found at the end of the input.");
     }
   }
   return (messages);
