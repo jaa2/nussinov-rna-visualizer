@@ -7,10 +7,14 @@ interface Link {
   readonly value: number;
   readonly nussinovPair: boolean;
   readonly inBulge: boolean;
+  readonly bpLink: boolean;
 }
 
 interface Node {
   readonly id: number;
+  readonly bpText: string;
+  readonly isBp: boolean;
+  readonly inBulge: boolean;
 }
 
 export interface IForceGraphProps {
@@ -24,17 +28,22 @@ const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, 
 // Released under the ISC license.
 // https://observablehq.com/@d3/force-directed-graph
 function drawForceGraph(
-  { nodes, links, bases }: any,
+  { nodes, links }: any,
   {
     width = 800,
     height = 600,
     windowBuffer = 10,
     windowBounds = 800,
+    ticksPerRender = 4,
     linkColor = '#555',
     linkOpacity = 0.7,
+    startStopLinkOpacity = 0.2,
     nodeRadiusPixels = 5,
-    nodeColor = '#999',
+    startStopRadiusPixels = 7,
+    nodeColor = '#333',
     nodeFontSizeEm = '0.4em',
+    startStopNodeColor = '#888',
+    bulgeColor = '#252073',
   }: any = { },
 ) {
   function intern(value: any) {
@@ -45,12 +54,18 @@ function drawForceGraph(
   const LS = d3.map(links, ({ source }: any) => source).map(intern);
   const LT = d3.map(links, ({ target }: any) => target).map(intern);
 
-  nodes = d3.map(nodes, (_, i) => ({ id: N[i] })); // eslint-disable-line
+  nodes = d3.map(nodes, (_, i) => ({ // eslint-disable-line
+    id: N[i],
+    bpText: nodes[i].bpText,
+    isBp: nodes[i].isBp,
+    inBulge: nodes[i].inBulge,
+  }));
   links = d3.map(links, (_, i) => ({ // eslint-disable-line
     source: LS[i],
     target: LT[i],
     nussinovPair: links[i].nussinovPair,
     inBulge: links[i].inBulge,
+    bpLink: links[i].bpLink,
   }));
 
   const forceNode = d3.forceManyBody();
@@ -78,7 +93,7 @@ function drawForceGraph(
     .attr('viewBox', [-width / 2, -height / 2, width, height])
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
 
-  let tick = 0;
+  let firstTick = true;
 
   const simulation = d3.forceSimulation(nodes)
     .force('link', forceLink)
@@ -86,7 +101,7 @@ function drawForceGraph(
     .force('center', d3.forceCenter())
     .on('tick', () => {
       /* eslint-disable no-param-reassign */
-      if (tick === 0) {
+      if (firstTick) {
         let theta = 0;
         const tau = 2 * Math.PI;
         const radius = nodes.length;
@@ -97,7 +112,10 @@ function drawForceGraph(
         }
       }
 
-      tick += 1;
+      firstTick = false;
+      for (let i = 0; i < ticksPerRender; i += 1) {
+        simulation.tick();
+      }
 
       link // eslint-disable-line
         .attr('x1', (d: any) => d.source.x)
@@ -139,10 +157,10 @@ function drawForceGraph(
 
   const link = svg.append('g')
     .attr('stroke', linkColor)
-    .attr('stroke-opacity', linkOpacity)
     .selectAll('line')
     .data(links)
     .join('line')
+    .attr('stroke-opacity', (l: any): string => (l.bpLink ? linkOpacity : startStopLinkOpacity))
     .attr('stroke-dasharray', (l: any): string => (l.nussinovPair ? '1' : ''));
 
   const node = svg.selectAll('circle')
@@ -152,16 +170,22 @@ function drawForceGraph(
     .append('g');
 
   const circles = node.append('circle')
-    .attr('r', nodeRadiusPixels)
+    .attr('r', (n: any): string => (n.isBp ? nodeRadiusPixels : startStopRadiusPixels))
+    .attr('fill', (n: any): string => {
+      if (n.isBp) {
+        return n.inBulge ? bulgeColor : nodeColor;
+      }
+      return startStopNodeColor;
+    })
     .call(drag(simulation)); // eslint-disable-line
 
   const bpText = node.append('text')
     .style('fill', 'white')
-    .style('font-size', nodeFontSizeEm)
+    .style('font-size', (n: any): string => (n.isBp ? nodeFontSizeEm : '0.3em'))
     .attr('text-anchor', 'middle')
     .attr('dy', nodeFontSizeEm)
     .attr('pointer-events', 'none')
-    .text((n: any): string => bases[n.id]);
+    .text((n: any): string => n.bpText);
 
   function drag(sim: any): any {
   /* eslint-disable no-param-reassign */
@@ -207,6 +231,7 @@ const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
       value: 1,
       nussinovPair: true,
       inBulge: false,
+      bpLink: true,
     };
     if (l.source < n && l.target < n) {
       links.push(l);
@@ -223,15 +248,33 @@ const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
         value: 1,
         nussinovPair: false,
         inBulge: !pairedNodes.has(i) || !pairedNodes.has(i + 1),
+        bpLink: true,
       });
     }
-    nodes.push({ id: i });
+    nodes.push({
+      id: i, bpText: bases.charAt(i), isBp: true, inBulge: pairedNodes.has(i),
+    });
+  }
+
+  // Add start/stop indicators
+  if (n > 0) {
+    nodes.push({
+      id: -1, bpText: 'start', isBp: false, inBulge: false,
+    });
+    nodes.push({
+      id: n, bpText: 'end', isBp: false, inBulge: false,
+    });
+    links.push({
+      source: -1, target: 0, value: 1, nussinovPair: false, inBulge: true, bpLink: false,
+    });
+    links.push({
+      source: n - 1, target: n, value: 1, nussinovPair: false, inBulge: true, bpLink: false,
+    });
   }
 
   const forceGraph = {
     nodes,
     links,
-    bases,
   };
 
   const drawnGraph = drawForceGraph(forceGraph);
