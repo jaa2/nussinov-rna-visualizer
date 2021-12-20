@@ -16,21 +16,30 @@ const App = function App() {
   /**
    * Sets the graph as a new set of bases
    * @param newBases List of bases, as a string
+   * @param newMinHairpin New minimum hairpin length
    */
-  function updateBases(newBases: string, newMinHairpin: undefined | number = undefined) {
+  function updateGraph(newBases: string, newMinHairpin: undefined | number = undefined) {
     let thisMinHairpin = minHairpin;
     if (newMinHairpin !== undefined) {
       thisMinHairpin = newMinHairpin;
     }
+    const newPairs = nussinov(newBases, thisMinHairpin);
+    setPairs(newPairs);
+    setDotParenthesesOutput(dotParentheses(newBases.length, newPairs));
+  }
+
+  /**
+   * Filters the bases string and updates warnings and labels
+   * @param newBases String of bases to use in the visualization
+   */
+  function updateBases(newBases: string) {
     const [filteredStr, rnaSanitizeWarns] = sanitizeRNAString(newBases);
     let rnaWarnings: Array<string> = rnaSanitizeWarns;
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
     setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
-    const newPairs = nussinov(filteredStr, thisMinHairpin);
-    setPairs(newPairs);
-    setDotParenthesesOutput(dotParentheses(filteredStr.length, newPairs));
     setBases(filteredStr);
+    updateGraph(filteredStr);
   }
 
   useEffect(() => {
@@ -38,13 +47,14 @@ const App = function App() {
     const defaultBases = 'AAAACCAAAGGGGGUUGA';
     const defaultMinHairpin = 2;
     setMinHairpin(defaultMinHairpin);
-    updateBases(defaultBases);
+    setBases(defaultBases);
+    updateGraph(defaultBases);
   }, []);
 
   function updateMinHairpin(newMinHairpin: number) {
     const clampedMinHairpin = Math.min(bases.length, Math.max(0, newMinHairpin));
     setMinHairpin(clampedMinHairpin);
-    updateBases(bases, clampedMinHairpin);
+    updateGraph(bases, clampedMinHairpin);
   }
 
   const warningsElements: Array<JSX.Element> = warnings.map((warningStr) => (
