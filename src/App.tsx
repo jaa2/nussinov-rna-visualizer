@@ -56,7 +56,7 @@ const App = function App() {
   const dnaToRnaSnippet: JSX.Element = isDNAtoRNA ? <span className="h5 badge bg-primary" style={{ transform: 'scale(0.7)' }}>DNA&#10142;RNA</span> : <span />;
 
   return (
-    <div className="container-sm">
+    <div className="container-md">
       <h1 className="text-center">Nussinov RNA Secondary Structure Visualizer</h1>
       <p className="text-center">by jaa2, Jpn3, and SethWyma</p>
       <div className="row g-3">
@@ -71,12 +71,23 @@ const App = function App() {
       </div>
 
       <br />
-      <h3>
-        Nussinov Plot
-        {dnaToRnaSnippet}
-      </h3>
-      <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
-      <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+      <div className="d-flex flex-row flex-wrap justify-content-between mb-4">
+        <div>
+          <h3 className="text-center">
+            Nussinov Plot
+            {dnaToRnaSnippet}
+          </h3>
+          <div style={{ width: '550px', height: '550px' }}>
+            <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+          </div>
+        </div>
+        <div>
+          <h3 className="text-center">Force-Directed Graph</h3>
+          <div style={{ width: '700px', height: '500px' }}>
+            <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+          </div>
+        </div>
+      </div>
       <br />
       <h3>Dot-Parentheses Format</h3>
       <div

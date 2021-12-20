@@ -26,8 +26,8 @@ const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, 
 function drawForceGraph(
   { nodes, links, bases }: any,
   {
-    width = 800,
-    height = 600,
+    width = 700,
+    height = 500,
     windowBuffer = 10,
     windowBounds = 800,
     linkColor = '#555',
@@ -243,7 +243,7 @@ const ForceGraph = function ForceGraph(props: IForceGraphProps): JSX.Element {
   }, []);
 
   return (
-    <svg width="1200" height="1200" ref={svg} />
+    <svg width="700" height="500" ref={svg} />
   );
 };
 
