@@ -7,8 +7,16 @@ export const mixedInputMessage: string = 'Both DNA bases (T) and RNA bases (U) f
  * @returns an array containing the cleaned RNA string and all warning messages
  */
 export function sanitizeRNAString(data: string): [string, string[]] {
-  const dataArr: string[] = data.split(' ');
-  let basePairsStr:string = dataArr[dataArr.length - 1];
+  // identify and clean fasta file
+  let basePairsStr:string = '';
+  if (data[0] === '>') {
+    const fasta: string[] = data.split('\n');
+    fasta.splice(0, 1);
+    basePairsStr = fasta.join('');
+  } else {
+    basePairsStr = data;
+  }
+
   basePairsStr = basePairsStr.toUpperCase();
 
   const messages: string[] = [];
@@ -19,6 +27,7 @@ export function sanitizeRNAString(data: string): [string, string[]] {
   }
 
   // Converts DNA to RNA
+  basePairsStr = basePairsStr.replace(/\s/g, '');
   basePairsStr = basePairsStr.replace(/T/g, 'U');
   const rnaStr = basePairsStr.replaceAll(/[^GACU]/g, '');
 
@@ -53,7 +62,7 @@ export function bioCheck(data: string): string[] {
       (data[data.length - 1]).toString(),
     );
     if (!(end === 'UAA' || end === 'UAG' || end === 'UGA')) {
-      messages.push('The RNA sequence does not contain a proper end sequence.');
+      messages.push("None of the end codons ('UAA,' 'UAG,' or 'UGA') were found at the end of the input.");
     }
   }
   return (messages);

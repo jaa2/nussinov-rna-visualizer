@@ -17,13 +17,17 @@ const App = function App() {
    * Sets the graph as a new set of bases
    * @param newBases List of bases, as a string
    */
-  function updateBases(newBases: string) {
+  function updateBases(newBases: string, newMinHairpin: undefined | number = undefined) {
+    let thisMinHairpin = minHairpin;
+    if (newMinHairpin !== undefined) {
+      thisMinHairpin = newMinHairpin;
+    }
     const [filteredStr, rnaSanitizeWarns] = sanitizeRNAString(newBases);
     let rnaWarnings: Array<string> = rnaSanitizeWarns;
     rnaWarnings = rnaWarnings.concat(bioCheck(filteredStr));
     setWarnings(rnaWarnings);
     setIsDNAtoRNA(newBases.toUpperCase().includes('T'));
-    const newPairs = nussinov(filteredStr, minHairpin);
+    const newPairs = nussinov(filteredStr, thisMinHairpin);
     setPairs(newPairs);
     setDotParenthesesOutput(dotParentheses(filteredStr.length, newPairs));
     setBases(filteredStr);
@@ -31,16 +35,16 @@ const App = function App() {
 
   useEffect(() => {
     // Called on component load
-    const defaultBases = 'GAUUACAGAUAA';
+    const defaultBases = 'AAAACCAAAGGGGGUUGA';
     const defaultMinHairpin = 2;
     setMinHairpin(defaultMinHairpin);
     updateBases(defaultBases);
   }, []);
 
   function updateMinHairpin(newMinHairpin: number) {
-    const clampedMinHairpin = Math.min(bases.length, Math.max(1, newMinHairpin));
+    const clampedMinHairpin = Math.min(bases.length, Math.max(0, newMinHairpin));
     setMinHairpin(clampedMinHairpin);
-    updateBases(bases);
+    updateBases(bases, clampedMinHairpin);
   }
 
   const warningsElements: Array<JSX.Element> = warnings.map((warningStr) => (
@@ -52,27 +56,38 @@ const App = function App() {
   const dnaToRnaSnippet: JSX.Element = isDNAtoRNA ? <span className="h5 badge bg-primary" style={{ transform: 'scale(0.7)' }}>DNA&#10142;RNA</span> : <span />;
 
   return (
-    <div className="container-sm">
+    <div className="container-md">
       <h1 className="text-center">Nussinov RNA Secondary Structure Visualizer</h1>
       <p className="text-center">by jaa2, Jpn3, and SethWyma</p>
       <div className="row g-3">
         <div className="col-9">
           <label htmlFor="bases-input" className="form-label">Bases of the RNA strand</label>
-          <input className="form-control" id="bases-input" type="text" placeholder="GAUUACAGAUAA..." onChange={(e) => { updateBases(e.target.value); }} />
+          <textarea spellCheck="false" className="form-control" id="bases-input" rows={1} placeholder="AAAACCAAAGGGGGUUGA..." onChange={(e) => { updateBases(e.target.value); }} />
         </div>
         <div className="col-3">
           <label htmlFor="bases-input" className="form-label">Minimum hairpin length</label>
-          <input className="form-control" id="min-hairpin-input" type="number" value={minHairpin} onChange={(e) => { updateMinHairpin(+e.target.value); }} />
+          <input className="form-control" id="min-hairpin-input" type="number" min="0" value={minHairpin} onChange={(e) => { updateMinHairpin(Number(e.target.value)); }} />
         </div>
       </div>
 
       <br />
-      <h3>
-        Nussinov Plot
-        {dnaToRnaSnippet}
-      </h3>
-      <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
-      <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+      <div className="d-flex flex-row flex-wrap justify-content-between mb-4">
+        <div>
+          <h3 className="text-center">
+            Nussinov Plot
+            {dnaToRnaSnippet}
+          </h3>
+          <div style={{ width: '550px', height: '550px' }}>
+            <NussinovPlot key={`C${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+          </div>
+        </div>
+        <div>
+          <h3 className="text-center">Force-Directed Graph</h3>
+          <div style={{ width: '700px', height: '500px' }}>
+            <ForceGraph key={`F${bases}_${minHairpin}`} bases={bases} pairs={pairs} />
+          </div>
+        </div>
+      </div>
       <br />
       <h3>Dot-Parentheses Format</h3>
       <div

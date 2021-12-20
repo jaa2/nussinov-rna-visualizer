@@ -36,9 +36,15 @@ test('Sanitize catching many errors', () => {
   expect(element).toEqual(['GACCC', ['Characters ignored: B!1']]);
 });
 
+test('Whitespace produces no warnings', () => {
+  const element = sanitizeRNAString('   G\n\n\nAGAGAGAG    AGAGAGA   GUUAA   ');
+  expect(element).toEqual(['GAGAGAGAGAGAGAGAGUUAA', []]);
+});
+
 test('Sanitize on FASTA files', () => {
-  const element = sanitizeRNAString('>NC_000007.14:22725889-22732002 IL6 [organism=Homo sapiens] [GeneID=3569] [chromosome=7] ACACCATGTTTGGTAAATAAGTGTTTTGGTTGA');
-  expect(element).toEqual(['ACACCAUGUUUGGUAAAUAAGUGUUUUGGUUGA', []]);
+  const element = sanitizeRNAString('>NC_000023.11:12867072-12890361 TLR7 [organism=Homo sapiens] [GeneID=51284] [chromosome=X]\nACTTCATCTCAGAAGACTCCAGATATAGGATCACTCCATGCCATCAAGAAAGGTATTTTAAACATTGGAA\nCACATATAGATAATTTAAGTAGGTAGATGTATGTGCTGTTATAAGGAAGTGGGGAGGAGAGAAGAGGGAA\nCCGAAATCATATGCACAAAAATTTTTTTTAGAATATAAATAAAAAATGTGGTAGTCTAAAATGTCAATTC\nTTCAAAGATAAAGTTAGGCTTTCAGTAACGTTAGAAATGGTTTTCTGGAATATGTCTCCAGTCTACCTAA\n');
+
+  expect(element).toEqual(['ACUUCAUCUCAGAAGACUCCAGAUAUAGGAUCACUCCAUGCCAUCAAGAAAGGUAUUUUAAACAUUGGAACACAUAUAGAUAAUUUAAGUAGGUAGAUGUAUGUGCUGUUAUAAGGAAGUGGGGAGGAGAGAAGAGGGAACCGAAAUCAUAUGCACAAAAAUUUUUUUUAGAAUAUAAAUAAAAAAUGUGGUAGUCUAAAAUGUCAAUUCUUCAAAGAUAAAGUUAGGCUUUCAGUAACGUUAGAAAUGGUUUUCUGGAAUAUGUCUCCAGUCUACCUAA', []]);
 });
 
 test('Mixed DNA/RNA bases input', () => {
@@ -52,12 +58,12 @@ test('BioCheck check for extraneous protein', () => {
 
 test('BioCheck check for improper end sequence', () => {
   const element = bioCheck(sanitizeRNAString('cuccaa')[0]);
-  expect(element).toEqual(['The RNA sequence does not contain a proper end sequence.']);
+  expect(element).toEqual(["None of the end codons ('UAA,' 'UAG,' or 'UGA') were found at the end of the input."]);
 });
 
 test('BioCheck check for extraneous protein and improper end sequence', () => {
   const element = bioCheck(sanitizeRNAString('gcuccaa')[0]);
-  expect(element).toEqual(['The RNA sequence is not divisible by 3; the string has an ambiguous protein.', 'The RNA sequence does not contain a proper end sequence.']);
+  expect(element).toEqual(['The RNA sequence is not divisible by 3; the string has an ambiguous protein.', "None of the end codons ('UAA,' 'UAG,' or 'UGA') were found at the end of the input."]);
 });
 
 test('BioCheck passing sequence', () => {
