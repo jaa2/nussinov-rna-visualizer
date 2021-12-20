@@ -35,7 +35,7 @@ const App = function App() {
 
   useEffect(() => {
     // Called on component load
-    const defaultBases = 'GAUUACAGAUAA';
+    const defaultBases = 'AAAACCAAAGGGGGUUGA';
     const defaultMinHairpin = 2;
     setMinHairpin(defaultMinHairpin);
     updateBases(defaultBases);
@@ -62,7 +62,7 @@ const App = function App() {
       <div className="row g-3">
         <div className="col-9">
           <label htmlFor="bases-input" className="form-label">Bases of the RNA strand</label>
-          <textarea className="form-control" id="bases-input" rows={1} placeholder="GAUUACAGAUAA..." onChange={(e) => { updateBases(e.target.value); }} />
+          <textarea className="form-control" id="bases-input" rows={1} placeholder="AAAACCAAAGGGGGUUGA..." onChange={(e) => { updateBases(e.target.value); }} />
         </div>
         <div className="col-3">
           <label htmlFor="bases-input" className="form-label">Minimum hairpin length</label>
